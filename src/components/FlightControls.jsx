@@ -1,0 +1,59 @@
+import { setFlightMode } from './WebotsConnector'
+import { useTelemetryStore } from '../store/useStore'
+
+const FlightControls = () => {
+  const flightMode = useTelemetryStore((state) => state.telemetry.flight_mode)
+
+  return (
+    <div className="bg-black/50 backdrop-blur-sm text-white p-4 rounded-lg space-y-3">
+      <h3 className="text-sm font-bold uppercase tracking-wide border-b border-white/20 pb-2">
+        Flight Controls
+      </h3>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => setFlightMode('takeoff')}
+          disabled={flightMode === 'takeoff'}
+          className={`flex-1 px-3 py-2 rounded font-bold text-sm transition-colors ${
+            flightMode === 'takeoff'
+              ? 'bg-green-600 cursor-not-allowed'
+              : 'bg-green-500 hover:bg-green-600'
+          }`}
+        >
+          TAKEOFF
+        </button>
+
+        <button
+          onClick={() => setFlightMode('hover')}
+          disabled={flightMode === 'hover'}
+          className={`flex-1 px-3 py-2 rounded font-bold text-sm transition-colors ${
+            flightMode === 'hover'
+              ? 'bg-blue-600 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
+          }`}
+        >
+          HOVER
+        </button>
+
+        <button
+          onClick={() => setFlightMode('land')}
+          disabled={flightMode === 'land'}
+          className={`flex-1 px-3 py-2 rounded font-bold text-sm transition-colors ${
+            flightMode === 'land'
+              ? 'bg-orange-600 cursor-not-allowed'
+              : 'bg-orange-500 hover:bg-orange-600'
+          }`}
+        >
+          LAND
+        </button>
+      </div>
+
+      <div className="text-xs text-center">
+        <span className="text-gray-400">Current Mode: </span>
+        <span className="font-bold uppercase">{flightMode}</span>
+      </div>
+    </div>
+  )
+}
+
+export default FlightControls

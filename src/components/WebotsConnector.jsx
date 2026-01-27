@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useCameraStore } from '../store/useStore'
+import { useCameraStore, useTelemetryStore } from '../store/useStore'
 
 let socket = null
 let isSocketReady = false
@@ -8,17 +8,42 @@ export const sendDroneCommand = (vertical, roll, pitch, yaw) => {
   if (socket && socket.readyState === WebSocket.OPEN) {
     const command = {
       type: 'motor_command',
-      vertical: vertical,
-      roll: roll,
-      pitch: pitch,
-      yaw: yaw,
+      vertical,
+      roll,
+      pitch,
+      yaw,
     }
     socket.send(JSON.stringify(command))
   }
 }
 
+export const setFlightMode = (mode) => {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(
+      JSON.stringify({
+        type: 'flight_mode',
+        mode,
+      }),
+    )
+  }
+}
+
+export const switchCamera = (camera) => {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(
+      JSON.stringify({
+        type: 'camera_switch',
+        camera,
+      }),
+    )
+  }
+}
+
 const WebotsConnector = () => {
   const setCameraImage = useCameraStore((state) => state.setCameraImage)
+  const setActiveCamera = useCameraStore((state) => state.setActiveCamera)
+  const setCameraStats = useCameraStore((state) => state.setCameraStats)
+  const setTelemetry = useTelemetryStore((state) => state.setTelemetry)
 
   useEffect(() => {
     const ws = new WebSocket('ws://127.0.0.1:8765')
@@ -37,6 +62,25 @@ const WebotsConnector = () => {
       if (data.camera) {
         const imageUrl = `data:image/jpeg;base64,${data.camera.data}`
         setCameraImage(imageUrl)
+        setActiveCamera(data.camera.active)
+        setCameraStats(data.camera.resolution, data.camera.fps)
+      }
+
+      if (data.telemetry) {
+        setTelemetry({
+          altitude: data.telemetry.altitude,
+          target: data.telemetry.target,
+          roll: data.telemetry.roll,
+          pitch: data.telemetry.pitch,
+          yaw: data.telemetry.yaw,
+          gps: data.telemetry.gps,
+          battery: data.telemetry.battery,
+          signal_strength: data.telemetry.signal_strength,
+          temperatures: data.telemetry.temperatures,
+          wind_speed: data.telemetry.wind_speed,
+          flight_mode: data.telemetry.flight_mode,
+          timestamp: data.timestamp,
+        })
       }
     }
 
@@ -57,7 +101,7 @@ const WebotsConnector = () => {
         isSocketReady = false
       }
     }
-  }, [setCameraImage])
+  }, [setCameraImage, setActiveCamera, setCameraStats, setTelemetry])
 
   return null
 }

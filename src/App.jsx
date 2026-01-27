@@ -4,6 +4,9 @@ import WebotsConnector from './components/WebotsConnector'
 import Experience from './components/Experience'
 import SimulationControls from './components/SimulationControls'
 import CameraView from './components/CameraView'
+import TelemetryDisplay from './components/TelemetryDisplay'
+import FlightControls from './components/FlightControls'
+import CameraControls from './components/CameraControls'
 
 export default function App() {
   return (
@@ -24,9 +27,12 @@ export default function App() {
         <Stats className="!left-auto !right-4 !top-4" />
       </Canvas>
 
-      <div className="absolute top-4 left-4 z-20 pointer-events-auto space-y-4">
+      <div className="absolute top-4 left-4 z-20 pointer-events-auto space-y-4 max-w-md">
         <h1 className="text-red-500 font-bold text-2xl">Robot Interface</h1>
+        <FlightControls />
         <SimulationControls />
+        <TelemetryDisplay />
+        <CameraControls />
         <CameraView />
       </div>
     </div>
