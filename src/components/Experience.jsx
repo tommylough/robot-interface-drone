@@ -1,17 +1,10 @@
-import { OrbitControls } from '@react-three/drei'
-
 export default function Experience() {
   return (
     <>
-      <OrbitControls makeDefault />
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[5, 5, 5]} intensity={1} />
 
-      <directionalLight position={[1, 2, 3]} intensity={4.5} />
-      <ambientLight intensity={1.5} />
-
-      <mesh>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="orange" />
-      </mesh>
+      {/* Your R3F cockpit UI goes here */}
     </>
   )
 }

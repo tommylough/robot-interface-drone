@@ -1,141 +1,282 @@
-# React Three Fiber Boilerplate
+# Drone Interface
 
-A modern, production-ready starter template for building interactive 3D web experiences with React Three Fiber. This boilerplate combines the power of Three.js with React's component model, providing a solid foundation for creative 3D web projects.
+A real-time drone control interface built with React Three Fiber and Webots. Control a DJI Mavic 2 Pro quadcopter simulation through an interactive web interface with live camera feed and sensor-stabilized flight.
 
-## What is This?
+![Drone Interface](https://img.shields.io/badge/status-active-success.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-This is a pre-configured development environment that brings together the best tools for building 3D web applications. It eliminates the setup overhead and provides a structured starting point for projects ranging from 3D portfolios and product configurators to interactive data visualizations and web-based games.
+## Features
+
+- 🚁 **Real-time Drone Control** - Fly a simulated DJI Mavic 2 Pro with keyboard controls
+- 📹 **Live Camera Feed** - Stream video from the drone's front camera via WebSocket
+- 🎮 **6-Axis Control** - Full control over altitude, pitch, roll, and yaw
+- 🔄 **Auto-Stabilization** - PID-controlled flight using IMU, GPS, and gyro sensors
+- 🎨 **3D Visualization** - React Three Fiber canvas for future HUD elements
+- 📊 **Real-time Telemetry** - Live altitude, roll, and pitch data streaming
 
 ## Tech Stack
 
-### Core
-- **[Vite](https://vitejs.dev/)** - Lightning-fast build tool with HMR for instant feedback during development
-- **[React 18](https://react.dev/)** - Component-based UI library for building declarative interfaces
-- **[React Three Fiber](https://docs.pmnd.rs/react-three-fiber/)** - React renderer for Three.js, making 3D development feel like writing React components
-- **[Three.js](https://threejs.org/)** - The industry-standard WebGL library powering the 3D graphics
+**Frontend:**
+- React 18
+- React Three Fiber (@react-three/fiber, @react-three/drei)
+- Zustand (state management)
+- Vite (build tool)
+- Tailwind CSS
 
-### 3D Ecosystem
-- **[@react-three/drei](https://github.com/pmndrs/drei)** - Essential helpers and abstractions for R3F (cameras, controls, loaders, effects)
-- **[@react-three/postprocessing](https://github.com/pmndrs/react-postprocessing)** - Post-processing effects like bloom, depth of field, and color grading
-- **[vite-plugin-glsl](https://github.com/UstymUkhman/vite-plugin-glsl)** - Import GLSL shaders as modules for custom materials and effects
+**Backend:**
+- Python 3
+- Webots R2025a (robotics simulator)
+- WebSockets (asyncio, websockets)
+- Pillow (image processing)
 
-### State & Animation
-- **[Zustand](https://github.com/pmndrs/zustand)** - Minimal, fast state management without boilerplate
-- **[GSAP](https://greensock.com/gsap/)** - Professional-grade animation library for complex timelines and interactions
-- **[Leva](https://github.com/pmndrs/leva)** - GUI controls for tweaking parameters in real-time during development
+## Prerequisites
 
-### Styling & Quality
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework for UI overlays and HTML elements
-- **[ESLint](https://eslint.org/)** - Code quality and style enforcement with React-specific rules
+- **Node.js** 18+ and npm/yarn
+- **Python** 3.8+
+- **Webots** R2025a or later
+- **Python packages:**
+  ```bash
+  pip install websockets pillow --break-system-packages
+  ```
 
-## Getting Started
+## Installation
 
-### Prerequisites
-- Node.js 18+ and npm/yarn/pnpm
+1. **Clone the repository:**
+   ```bash
+   git clone <your-repo-url>
+   cd robot-interface
+   ```
 
-### Installation
+2. **Install Node dependencies:**
+   ```bash
+   yarn install
+   # or
+   npm install
+   ```
 
+3. **Verify Webots installation:**
+   - Webots should be installed at `/Applications/Webots.app` (macOS)
+   - Ensure the Mavic2Pro robot model is available
+
+## Running the Project
+
+### 1. Start Webots Simulation
+
+**Option A: Using Webots GUI**
 ```bash
-# Clone or download this repository
-git clone <your-repo-url>
-cd r3f-starter
+open /Applications/Webots.app
+```
+Then open `./webots/worlds/flying-drone.wbt`
 
-# Install dependencies
-npm install
-# or
-yarn install
-
-# Start development server
-npm run dev
-# or
-yarn dev
+**Option B: Command line (headless)**
+```bash
+/Applications/Webots.app/Contents/MacOS/webots \
+  --stream \
+  --mode=run \
+  --extern-urls \
+  ./webots/worlds/flying-drone.wbt
 ```
 
-The development server will start at `http://localhost:5173`
+The Python controller will automatically start and you'll see:
+```
+INFO:__main__:WebSocket running on ws://localhost:8765
+INFO:__main__:Drone ready!
+```
+
+### 2. Start React Development Server
+
+In a new terminal:
+```bash
+yarn dev
+# or
+npm run dev
+```
+
+Navigate to `http://localhost:5173` (or the port shown in your terminal)
+
+### 3. Connect and Fly!
+
+Once both servers are running, the interface will automatically connect. You should see:
+- "Connected to Webots Python controller" in browser console
+- Live camera feed in the interface
+- The drone will automatically take off and stabilize
+
+## Controls
+
+| Key | Action |
+|-----|--------|
+| **↑** | Increase altitude |
+| **↓** | Decrease altitude |
+| **W** | Pitch forward (move forward) |
+| **S** | Pitch backward (move backward) |
+| **A** | Roll left (strafe left) |
+| **D** | Roll right (strafe right) |
+| **Q** | Yaw left (rotate counter-clockwise) |
+| **E** | Yaw right (rotate clockwise) |
+
+The drone uses PID stabilization, so it will automatically level itself when you release controls.
 
 ## Project Structure
 
 ```
-r3f-starter/
+robot-interface/
 ├── src/
-│   ├── components/        # React & R3F components
-│   │   └── Experience.jsx # Main 3D scene component
-│   ├── store/            # Zustand state stores
-│   │   └── useStore.js   # Example store
-│   ├── shaders/          # GLSL shader files (create as needed)
-│   ├── utils/            # Helper functions (create as needed)
-│   ├── assets/           # 3D models, textures, fonts (create as needed)
-│   ├── App.jsx           # Root component with Canvas setup
-│   ├── main.jsx          # Application entry point
-│   └── index.css         # Global styles with Tailwind directives
-├── public/               # Static assets (create as needed)
-├── index.html            # HTML entry point
-├── vite.config.js        # Vite configuration with GLSL support
-├── tailwind.config.js    # Tailwind CSS configuration
-├── postcss.config.js     # PostCSS configuration for Tailwind
-└── .eslintrc.cjs         # ESLint rules and settings
+│   ├── components/
+│   │   ├── WebotsConnector.jsx    # WebSocket connection manager
+│   │   ├── SimulationControls.jsx  # Keyboard input handler
+│   │   ├── CameraView.jsx          # Live camera feed display
+│   │   └── Experience.jsx          # R3F 3D scene
+│   ├── store/
+│   │   └── useStore.js             # Zustand state management
+│   ├── App.jsx                     # Main application component
+│   └── main.jsx                    # Application entry point
+├── webots/
+│   ├── controllers/
+│   │   └── flying/
+│   │       └── flying.py           # Python drone controller
+│   └── worlds/
+│       └── flying-drone.wbt        # Webots world file
+├── public/                         # Static assets
+└── package.json
 ```
 
-## Available Scripts
+## How It Works
 
-- **`npm run dev`** - Start development server with hot module replacement
-- **`npm run build`** - Build optimized production bundle to `dist/`
-- **`npm run preview`** - Preview production build locally
-- **`npm run lint`** - Run ESLint to check code quality
+### Architecture
 
-## Key Features
+```
+┌─────────────────┐     WebSocket      ┌──────────────────┐
+│  React Frontend │◄──────(8765)──────►│ Python Controller│
+│                 │                     │    (Webots)      │
+│  - Keyboard     │    Commands         │                  │
+│  - Camera View  │◄───────────────────│  - IMU/GPS/Gyro  │
+│  - Telemetry    │    Camera + Data    │  - PID Control   │
+└─────────────────┘                     │  - Motor Control │
+                                        └──────────────────┘
+```
 
-### 🎨 Shader Support
-Import GLSL shaders directly as ES modules:
+### Control Flow
+
+1. **User Input** → Keyboard events captured in React
+2. **Command Generation** → Converted to vertical/roll/pitch/yaw values
+3. **WebSocket Transmission** → JSON commands sent to Python controller
+4. **Sensor Reading** → IMU, GPS, gyro values read from Webots
+5. **PID Stabilization** → Control algorithms compute motor adjustments
+6. **Motor Actuation** → Propeller velocities set on drone
+7. **Feedback Loop** → Camera and telemetry streamed back to UI
+
+### Stabilization System
+
+The drone uses a PID (Proportional-Integral-Derivative) control system based on the official DJI Mavic 2 Pro controller:
+
+- **Roll/Pitch Stabilization:** Maintains level flight using IMU and gyroscope
+- **Altitude Control:** GPS-based altitude holding with cubic scaling
+- **User Commands:** Applied as "disturbances" on top of stabilization
+
+PID Constants (tunable in `flying.py`):
+```python
+'k_vertical_thrust': 68.5,  # Base hover thrust
+'k_vertical_p': 3.0,        # Altitude PID gain
+'k_roll_p': 50.0,           # Roll PID gain
+'k_pitch_p': 20.0,          # Pitch PID gain
+```
+
+## Configuration
+
+### Adjust Control Sensitivity
+
+**In React** (`src/store/useStore.js`):
 ```javascript
-import vertexShader from './shaders/vertex.glsl'
-import fragmentShader from './shaders/fragment.glsl'
+export const useDroneStore = zustandCreate((set) => ({
+  sensitivity: 0.5, // Range: 0.1 to 1.0
+  // ...
+}))
 ```
 
-### 🎮 Built-in Controls
-OrbitControls are set up by default in `Experience.jsx` for easy camera manipulation
+**In Python** (`webots/controllers/flying/flying.py`):
+```python
+current_disturbances['roll'] = cmd['roll'] * -0.8
+current_disturbances['pitch'] = cmd['pitch'] * -1.2
+current_disturbances['yaw'] = cmd['yaw'] * -1.3
+```
 
-### 🎯 Performance Optimized
-- Vite's fast bundling and tree-shaking
-- React 18's concurrent features
-- Automatic code splitting
+### Camera Quality
 
-### 🎨 Styling Flexibility
-- Tailwind for UI overlays
-- Full access to CSS/SCSS for custom styling
-- Easy integration with CSS-in-JS libraries
+In `flying.py` CONFIG:
+```python
+CONFIG = {
+    'frame_interval': 2,    # Send every Nth frame (2 = 30fps)
+    'jpeg_quality': 85,     # JPEG compression quality (1-100)
+}
+```
 
-### 🔧 Developer Experience
-- Hot module replacement for instant feedback
-- ESLint configuration for code quality
-- TypeScript-ready (just rename files to `.tsx`)
+## Troubleshooting
 
-## Next Steps
+### Drone Flips Over Immediately
+- **Check starting position:** Drone should start on ground with `translation: 0 0 0.3` and `rotation: 0 0 1 0`
+- Edit `flying-drone.wbt` or use Webots UI to reset position
 
-1. **Customize the scene** in `src/components/Experience.jsx`
-2. **Add your 3D models** to `src/assets/`
-3. **Create shader materials** in `src/shaders/`
-4. **Build UI overlays** using React + Tailwind in `src/components/`
-5. **Manage app state** with Zustand in `src/store/`
+### WebSocket Connection Fails
+- Verify Python controller is running (check Webots console)
+- Ensure port 8765 is not blocked by firewall
+- Check browser console for connection errors
 
-## Recommended Additions
+### No Camera Feed
+- Camera device is named `'camera'` in Webots
+- Verify camera is enabled in controller
+- Check browser console for WebSocket messages
 
-- **[R3F Perf](https://github.com/pmndrs/r3f-perf)** - Performance monitoring overlay
-- **[Tunnel Rat](https://github.com/pmndrs/tunnel-rat)** - Render React components outside the Canvas
-- **[Maath](https://github.com/pmndrs/maath)** - Math helpers for 3D development
-- **[Prettier](https://prettier.io/)** - Code formatting
+### Controls Not Responding
+- Browser window must have focus
+- Check keyboard event listeners in browser DevTools
+- Verify WebSocket shows `readyState: 1` (OPEN)
 
-## Learning Resources
+### Drone Drifts/Unstable
+- Adjust PID constants in `flying.py` CONFIG
+- Reduce disturbance multipliers
+- Check sensor readings in Webots console
 
-- [React Three Fiber Documentation](https://docs.pmnd.rs/react-three-fiber/)
-- [Three.js Documentation](https://threejs.org/docs/)
-- [Drei Examples](https://github.com/pmndrs/drei#examples)
-- [PMNDRS Discord Community](https://discord.gg/poimandres)
+## Future Enhancements
+
+- [ ] Visual HUD with altitude/heading display in R3F scene
+- [ ] Waypoint navigation system
+- [ ] Autonomous flight modes (orbit, follow, return-to-home)
+- [ ] Multiple drone support
+- [ ] Joystick/gamepad support
+- [ ] Recording and playback of flight paths
+- [ ] Obstacle avoidance using LIDAR
+- [ ] First-person view (FPV) mode
+
+## Development
+
+### Building for Production
+```bash
+yarn build
+# or
+npm run build
+```
+
+Output will be in `dist/` directory.
+
+### Code Style
+- React components use functional components with hooks
+- Python follows PEP 8 style guide
+- Semicolons omitted in JavaScript (per Vite config)
 
 ## License
 
-MIT - Feel free to use this boilerplate for personal or commercial projects.
+MIT License - feel free to use this project for learning or commercial purposes.
 
-## Contributing
+## Acknowledgments
 
-Issues and pull requests are welcome!
+- Based on the official [Webots Mavic 2 Pro example](https://cyberbotics.com/doc/guide/mavic-2-pro)
+- PID control system adapted from Cyberbotics' sample controller
+- Built as part of exploring 3D web interfaces for robotics
+
+## Author
+
+Tommy Lough - [GitHub Profile](https://github.com/tommylough)
+
+---
+
+**Questions or Issues?** Please open an issue on GitHub or reach out!
