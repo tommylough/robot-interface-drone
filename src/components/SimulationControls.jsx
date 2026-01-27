@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { sendDroneCommand } from './WebotsConnector'
 import { useDroneStore } from '../store/useStore'
 
@@ -14,17 +14,16 @@ const SimulationControls = () => {
     arrowdown: false,
   })
   const sensitivity = useDroneStore((state) => state.sensitivity)
+  const wasAnyKeyPressed = useRef(false)
 
   useEffect(() => {
     const handleKeyDown = (e) => {
       const key = e.key.toLowerCase()
 
-      // Handle regular keys
       if (['w', 'a', 's', 'd', 'q', 'e'].includes(key)) {
         setKeys((prev) => ({ ...prev, [key]: true }))
       }
 
-      // Handle arrow keys
       if (e.code === 'ArrowUp') {
         e.preventDefault()
         setKeys((prev) => ({ ...prev, arrowup: true }))
@@ -38,12 +37,10 @@ const SimulationControls = () => {
     const handleKeyUp = (e) => {
       const key = e.key.toLowerCase()
 
-      // Handle regular keys
       if (['w', 'a', 's', 'd', 'q', 'e'].includes(key)) {
         setKeys((prev) => ({ ...prev, [key]: false }))
       }
 
-      // Handle arrow keys
       if (e.code === 'ArrowUp') {
         e.preventDefault()
         setKeys((prev) => ({ ...prev, arrowup: false }))
@@ -69,7 +66,7 @@ const SimulationControls = () => {
     let pitch = 0
     let yaw = 0
 
-    // Altitude control (Arrow Up = up, Arrow Down = down)
+    // Altitude control
     if (keys.arrowup) {
       vertical += sensitivity
     }
@@ -77,7 +74,7 @@ const SimulationControls = () => {
       vertical -= sensitivity
     }
 
-    // Forward/backward (W/S)
+    // Forward/backward
     if (keys.w) {
       pitch += sensitivity
     }
@@ -85,7 +82,7 @@ const SimulationControls = () => {
       pitch -= sensitivity
     }
 
-    // Left/right strafe (A/D)
+    // Left/right strafe
     if (keys.a) {
       roll -= sensitivity
     }
@@ -93,7 +90,7 @@ const SimulationControls = () => {
       roll += sensitivity
     }
 
-    // Yaw rotation (Q/E)
+    // Yaw rotation
     if (keys.q) {
       yaw -= sensitivity
     }
@@ -101,7 +98,17 @@ const SimulationControls = () => {
       yaw += sensitivity
     }
 
-    sendDroneCommand(vertical, roll, pitch, yaw)
+    const anyKeyPressed = Object.values(keys).some((pressed) => pressed)
+
+    // Send commands when keys are pressed OR when transitioning from pressed to released
+    if (anyKeyPressed) {
+      sendDroneCommand(vertical, roll, pitch, yaw)
+      wasAnyKeyPressed.current = true
+    } else if (wasAnyKeyPressed.current) {
+      // Send final zero command on release
+      sendDroneCommand(0, 0, 0, 0)
+      wasAnyKeyPressed.current = false
+    }
   }, [keys, sensitivity])
 
   return (
