@@ -16,6 +16,14 @@ class SensorManager:
         self.gyro = robot.getDevice('gyro')
         self.gyro.enable(timestep)
         
+        # Initialize compass if available
+        try:
+            self.compass = robot.getDevice('compass')
+            self.compass.enable(timestep)
+            self.has_compass = True
+        except:
+            self.has_compass = False
+        
         # Simulated sensor state
         self.battery = 100.0
         self.signal_strength = 100
@@ -36,6 +44,29 @@ class SensorManager:
             'pitch': rpy[1],
             'yaw': rpy[2]
         }
+    
+    def get_compass_heading(self):
+        """Get compass heading in degrees (0-360)"""
+        if self.has_compass:
+            import math
+            compass_values = self.compass.getValues()
+            # Compass returns [x, y, z] north vector
+            # Calculate heading from x and y components
+            heading_rad = math.atan2(compass_values[0], compass_values[1])
+            heading_deg = math.degrees(heading_rad)
+            # Normalize to 0-360
+            if heading_deg < 0:
+                heading_deg += 360
+            return heading_deg
+        else:
+            # Fallback to yaw from IMU converted to compass heading
+            import math
+            rpy = self.imu.getRollPitchYaw()
+            heading_deg = math.degrees(rpy[2])
+            # Normalize to 0-360
+            if heading_deg < 0:
+                heading_deg += 360
+            return heading_deg
     
     def get_angular_velocity(self):
         """Get angular velocities from gyro"""
