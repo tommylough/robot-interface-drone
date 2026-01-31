@@ -4,7 +4,7 @@ const CameraView = () => {
   const cameraImage = useCameraStore((state) => state.cameraImage)
 
   return (
-    <div className="border-2 border-blue-500 rounded overflow-hidden">
+    <div className="border-2 border-none rounded overflow-hidden bg-neutral-700 p-5">
       {cameraImage ? (
         <img src={cameraImage} alt="Robot Camera" className="w-full h-auto" />
       ) : (

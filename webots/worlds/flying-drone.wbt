@@ -28,8 +28,8 @@ WorldInfo {
   }
 }
 Viewpoint {
-  orientation -0.05008269362114908 -0.044512341458680375 0.9977526623655363 4.3090865423433184
-  position 6.779810834263888 27.555022689754594 7.751262654646031
+  orientation -0.15322227634107033 0.06347791100340212 0.986150844874913 2.2604472055221954
+  position -3761.4285556127093 4173.065105451067 20.116375591066003
   near 0.2
   follow "Mavic 2 PRO"
   followSmoothness 0.2
@@ -150,17 +150,18 @@ Forest {
   minRadius 3
 }
 Mavic2Pro {
-  hidden position_0_0 3.7136535982193926e-09
-  hidden position_5_0 -3.5987404781296024e-08
-  hidden rotation_6 0 -1 0 2.9802322387695313e-08
-  hidden position_6_0 8.233887130731377e-08
-  hidden rotation_7 0.9999999999999999 0 0 8.429369702178807e-08
-  translation 0 0 0.3
+  hidden position_0_0 254.25036581280438
+  hidden rotation_5 0 0 1 2.9229535256209163
+  hidden position_5_0 -341.6226024856175
+  hidden rotation_6 0 -1 0 2.330595897919836
+  hidden position_6_0 -1078.437928153163
+  hidden rotation_7 1 0 0 2.2699446817258173
+  translation 0 0 0.65
   controller "flying"
   cameraSlot [
     Camera {
       width 400
-      height 240
+      height 225
       near 0.2
     }
   ]

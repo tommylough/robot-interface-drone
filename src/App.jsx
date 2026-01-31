@@ -7,14 +7,15 @@ import CameraView from './components/CameraView'
 import TelemetryDisplay from './components/TelemetryDisplay'
 import FlightControls from './components/FlightControls'
 import CameraControls from './components/CameraControls'
+import MainView from './components/MainView'
 
 export default function App() {
   return (
-    <div className="h-screen w-full relative bg-slate-900">
+    <>
       <WebotsConnector />
-
+      <MainView />
       <Canvas
-        className="!absolute !inset-0 !z-0"
+        className="absolute! inset-0! z-0!"
         style={{ pointerEvents: 'auto' }}
         camera={{
           fov: 45,
@@ -24,17 +25,15 @@ export default function App() {
         }}
       >
         <Experience />
-        <Stats className="!left-auto !right-4 !top-4" />
+        <Stats className="left-auto! right-4! top-4!" />
       </Canvas>
 
       <div className="absolute top-4 left-4 z-20 pointer-events-auto space-y-4 max-w-md">
         <h1 className="text-red-500 font-bold text-2xl">Robot Interface</h1>
-        <FlightControls />
+        {/*<FlightControls />*/}
         <SimulationControls />
         <TelemetryDisplay />
-        <CameraControls />
-        <CameraView />
       </div>
-    </div>
+    </>
   )
 }

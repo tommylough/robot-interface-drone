@@ -47,7 +47,7 @@ const TelemetryDisplay = () => {
       </div>
 
       {/* Orientation */}
-      <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+      {/*<div className="grid grid-cols-3 gap-2 text-xs font-mono">
         <div>
           <div className="text-gray-400">Roll</div>
           <div
@@ -70,10 +70,10 @@ const TelemetryDisplay = () => {
           <div className="text-gray-400">Heading</div>
           <div className="font-bold text-cyan-400">{compassHeading}°</div>
         </div>
-      </div>
+      </div>*/}
 
       {/* Battery & Signal */}
-      <div className="grid grid-cols-2 gap-3 text-xs font-mono">
+      {/*<div className="grid grid-cols-2 gap-3 text-xs font-mono">
         <div>
           <div className="text-gray-400">Battery</div>
           <div
@@ -91,7 +91,7 @@ const TelemetryDisplay = () => {
             {telemetry.signal_strength || 100}%
           </div>
         </div>
-      </div>
+      </div>*/}
 
       {/* Temperatures */}
       <div className="space-y-1">

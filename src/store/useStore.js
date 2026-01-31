@@ -22,6 +22,7 @@ export const useTelemetryStore = zustandCreate((set) => ({
     roll: 0,
     pitch: 0,
     yaw: 0,
+    heading: 0,
     gps: { lat: 0, lon: 0, alt: 0 },
     battery: 100,
     signal_strength: 100,

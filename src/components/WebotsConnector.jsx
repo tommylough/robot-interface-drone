@@ -73,6 +73,7 @@ const WebotsConnector = () => {
           roll: data.telemetry.roll,
           pitch: data.telemetry.pitch,
           yaw: data.telemetry.yaw,
+          heading: data.telemetry.heading,
           gps: data.telemetry.gps,
           battery: data.telemetry.battery,
           signal_strength: data.telemetry.signal_strength,

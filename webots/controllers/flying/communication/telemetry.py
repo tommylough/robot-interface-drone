@@ -10,6 +10,7 @@ class TelemetryFormatter:
             'roll': round(orientation['roll'], 2),
             'pitch': round(orientation['pitch'], 2),
             'yaw': round(orientation['yaw'], 2),
+            'heading': round(sensor_manager.get_compass_heading(), 1),
             'gps': {
                 'lat': round(position['x'], 6),
                 'lon': round(position['y'], 6),
