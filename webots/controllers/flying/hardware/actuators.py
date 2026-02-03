@@ -2,7 +2,7 @@ class MotorController:
     def __init__(self, robot):
         self.robot = robot
         
-        # Initialize motors
+        # Initialize propeller motors
         self.front_left = robot.getDevice('front left propeller')
         self.front_right = robot.getDevice('front right propeller')
         self.rear_left = robot.getDevice('rear left propeller')
@@ -10,10 +10,23 @@ class MotorController:
         
         self.motors = [self.front_left, self.front_right, self.rear_left, self.rear_right]
         
-        # Set motors to velocity control mode
+        # Set propeller motors to velocity control mode
         for motor in self.motors:
             motor.setPosition(float('inf'))
             motor.setVelocity(1.0)
+        
+        # Initialize camera gimbal motors and lock them in place
+        try:
+            self.camera_yaw = robot.getDevice('camera yaw')
+            self.camera_pitch = robot.getDevice('camera pitch')
+            self.camera_roll = robot.getDevice('camera roll')
+            
+            # Set gimbal to neutral position and lock
+            self.camera_yaw.setPosition(0)
+            self.camera_pitch.setPosition(0)
+            self.camera_roll.setPosition(0)
+        except:
+            pass  # Camera gimbal might not be available
     
     def set_motor_speeds(self, fl, fr, rl, rr):
         """Set velocities for all four motors"""

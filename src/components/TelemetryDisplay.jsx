@@ -41,7 +41,7 @@ const TelemetryDisplay = () => {
         <div>
           <div className="text-gray-400 text-xs">Target</div>
           <div className="text-lg font-bold text-blue-400">
-            {telemetry.target?.toFixed(2) || '0.00'}m
+            {telemetry.target?.toFixed(2) || '0.00'}
           </div>
         </div>
       </div>
