@@ -36,3 +36,19 @@ class MotorController:
         self.rear_right.setVelocity(rr)
         
         return [fl, -fr, -rl, rr]  # Return actual speeds for telemetry
+    
+    def set_camera_angle(self, pitch_deg, yaw_deg):
+        """Set camera gimbal angles in degrees"""
+        import math
+        
+        if hasattr(self, 'camera_pitch') and hasattr(self, 'camera_yaw'):
+            # Convert degrees to radians
+            pitch_rad = math.radians(pitch_deg)
+            yaw_rad = math.radians(yaw_deg)
+            
+            # Set motor positions
+            self.camera_pitch.setPosition(pitch_rad)
+            self.camera_yaw.setPosition(yaw_rad)
+            
+            return True
+        return False

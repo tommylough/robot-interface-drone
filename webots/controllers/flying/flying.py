@@ -33,8 +33,13 @@ def main():
     def on_camera_switch(camera):
         camera_proc.set_active_camera(camera)
     
+    def on_camera_control(pitch, yaw):
+        """Handle manual camera gimbal control"""
+        motors.set_camera_angle(pitch, yaw)
+    
     websocket.set_flight_mode_callback(on_flight_mode_change)
     websocket.set_camera_switch_callback(on_camera_switch)
+    websocket.set_camera_control_callback(on_camera_control)
     
     # Start WebSocket server
     websocket.start()

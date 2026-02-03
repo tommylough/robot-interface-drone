@@ -15,6 +15,7 @@ class WebSocketServer:
         self.command_queue = queue.Queue(maxsize=1)
         self.flight_mode_callback = None
         self.camera_switch_callback = None
+        self.camera_control_callback = None
         self.latest_frame = {'data': None, 'lock': threading.Lock()}
     
     def set_flight_mode_callback(self, callback):
@@ -24,6 +25,10 @@ class WebSocketServer:
     def set_camera_switch_callback(self, callback):
         """Set callback for camera switches"""
         self.camera_switch_callback = callback
+    
+    def set_camera_control_callback(self, callback):
+        """Set callback for manual camera control"""
+        self.camera_control_callback = callback
     
     async def handler(self, websocket):
         """Handle WebSocket connections"""
@@ -63,6 +68,11 @@ class WebSocketServer:
                     elif data['type'] == 'camera_switch' and self.camera_switch_callback:
                         camera = data.get('camera', 'front')
                         self.camera_switch_callback(camera)
+                    
+                    elif data['type'] == 'camera_control' and self.camera_control_callback:
+                        pitch = data.get('pitch', 0)
+                        yaw = data.get('yaw', 0)
+                        self.camera_control_callback(pitch, yaw)
                         
                 except (json.JSONDecodeError, ValueError, KeyError) as e:
                     pass
