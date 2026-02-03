@@ -2,7 +2,7 @@ import CameraView from './CameraView'
 import CameraControls from './CameraControls'
 import Compass from './Compass'
 import Orientation from './Orientation'
-import Drone from './Drone'
+import Altitude from './Altitude'
 import FlightControls from './FlightControls'
 import { useTelemetryStore } from '../store/useStore'
 
@@ -72,7 +72,7 @@ const MainView = () => {
             </div>
             {/* Bottom row - Drone component */}
             <div className="flex-1">
-              <Drone />
+              <Altitude />
             </div>
           </div>
           {/* Bottom Middle - Controls/Telemetry */}
