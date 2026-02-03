@@ -28,7 +28,6 @@ class WebSocketServer:
     async def handler(self, websocket):
         """Handle WebSocket connections"""
         self.clients.add(websocket)
-        logger.info(f"Client connected. Total: {len(self.clients)}")
         
         try:
             async for message in websocket:
@@ -66,11 +65,11 @@ class WebSocketServer:
                         self.camera_switch_callback(camera)
                         
                 except (json.JSONDecodeError, ValueError, KeyError) as e:
-                    logger.warning(f"Invalid message: {e}")
+                    pass
         except websockets.exceptions.ConnectionClosed:
             pass
         except Exception as e:
-            logger.error(f"Handler error: {e}")
+            pass
         finally:
             self.clients.remove(websocket)
     
@@ -95,7 +94,6 @@ class WebSocketServer:
     async def run(self):
         """Start WebSocket server"""
         async with websockets.serve(self.handler, self.host, self.port):
-            logger.info(f"WebSocket running on ws://{self.host}:{self.port}")
             await self.broadcast_frames()
     
     def start(self):

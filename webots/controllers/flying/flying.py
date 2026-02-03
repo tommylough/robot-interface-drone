@@ -28,12 +28,10 @@ def main():
     
     # Set up callbacks
     def on_flight_mode_change(mode):
-        if flight_mode.set_mode(mode):
-            logger.info(f"Flight mode changed to: {mode}")
+        flight_mode.set_mode(mode)
     
     def on_camera_switch(camera):
-        if camera_proc.set_active_camera(camera):
-            logger.info(f"Camera switched to: {camera}")
+        camera_proc.set_active_camera(camera)
     
     websocket.set_flight_mode_callback(on_flight_mode_change)
     websocket.set_camera_switch_callback(on_camera_switch)
@@ -47,8 +45,7 @@ def main():
     # Get initial position
     initial_position = sensors.get_position()
     initial_altitude = initial_position['z']
-    pid.target_altitude = max(1.0, initial_altitude)
-    logger.info(f"Starting at altitude: {initial_altitude:.2f}m, target: {pid.target_altitude:.2f}m")
+    pid.target_altitude = initial_altitude  # Start at current altitude
     
     frame_counter = 0
     
@@ -63,31 +60,41 @@ def main():
         # Update flight mode logic
         flight_mode.update(altitude, pid)
         
-        # Handle user commands (only in manual mode)
-        if flight_mode.is_manual_mode():
-            command = websocket.get_command()
-            if command:
-                pid.update_target_altitude(command['vertical'])
-                pid.update_disturbances(
-                    command['roll'],
-                    command['pitch'],
-                    command['yaw']
-                )
-            else:
-                pid.decay_disturbances(0.95)
+        # In idle mode, disable all motors and ignore commands
+        if flight_mode.is_idle():
+            # Update initial_altitude to current position when idle (for takeoff from landed position)
+            initial_altitude = altitude
+            pid.target_altitude = initial_altitude
+            # Clear any commands from queue
+            websocket.get_command()
+            # Set all motors to zero
+            motor_speeds = motors.set_motor_speeds(0, 0, 0, 0)
         else:
-            # Auto mode - decay disturbances faster
-            pid.decay_disturbances(0.9)
-        
-        # Compute motor commands
-        fl, fr, rl, rr = pid.compute_motor_commands(
-            orientation,
-            angular_velocity,
-            altitude
-        )
-        
-        # Set motor speeds
-        motor_speeds = motors.set_motor_speeds(fl, fr, rl, rr)
+            # Handle user commands (only in manual mode)
+            if flight_mode.is_manual_mode():
+                command = websocket.get_command()
+                if command:
+                    pid.update_target_altitude(command['vertical'])
+                    pid.update_disturbances(
+                        command['roll'],
+                        command['pitch'],
+                        command['yaw']
+                    )
+                else:
+                    pid.decay_disturbances(0.95)
+            else:
+                # Auto mode - decay disturbances faster
+                pid.decay_disturbances(0.9)
+            
+            # Compute motor commands
+            fl, fr, rl, rr = pid.compute_motor_commands(
+                orientation,
+                angular_velocity,
+                altitude
+            )
+            
+            # Set motor speeds
+            motor_speeds = motors.set_motor_speeds(fl, fr, rl, rr)
         
         # Update simulated sensors
         sensors.update_simulated_sensors(motor_speeds, timestep)
@@ -132,7 +139,7 @@ def main():
                     websocket.update_frame(message)
                     
             except Exception as e:
-                logger.error(f"Frame error: {e}")
+                pass
 
 if __name__ == '__main__':
     main()

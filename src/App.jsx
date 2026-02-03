@@ -14,7 +14,7 @@ export default function App() {
     <>
       <WebotsConnector />
       <MainView />
-      <Canvas
+      {/*<Canvas
         className="absolute! inset-0! z-0!"
         style={{ pointerEvents: 'auto' }}
         camera={{
@@ -26,7 +26,7 @@ export default function App() {
       >
         <Experience />
         <Stats className="left-auto! right-4! top-4!" />
-      </Canvas>
+      </Canvas>*/}
 
       <div className="absolute top-4 left-4 z-20 pointer-events-auto space-y-4 max-w-md">
         <h1 className="text-red-500 font-bold text-2xl">Robot Interface</h1>
