@@ -1,86 +1,17 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState } from 'react'
 import { useTelemetryStore } from '../store/useStore'
+import { useAltitudeScale, convertToFeet } from '../hooks/useAltitudeScale'
 
 const Altitude = () => {
   const altitude = useTelemetryStore((state) => state.telemetry.altitude)
   const target = useTelemetryStore((state) => state.telemetry.target)
-
-  // Convert meters to feet
-  const altitudeFeet = altitude * 3.28084
-  const targetFeet = target * 3.28084
-
   const [containerHeight, setContainerHeight] = useState(500)
-  const scaleRef = useState(null)
 
-  // Calculate visible range and arrow position
-  const { visibleMax, arrowPosPercent } = useMemo(() => {
-    if (altitudeFeet <= 30) {
-      return {
-        visibleMax: 40,
-        arrowPosPercent: (altitudeFeet / 40) * 100,
-      }
-    } else {
-      return {
-        visibleMax: altitudeFeet / 0.75,
-        arrowPosPercent: 75,
-      }
-    }
-  }, [altitudeFeet])
-
-  // Calculate ticks with adaptive density
-  const ticks = useMemo(() => {
-    const minLabelGap = 20
-    const steps = [10, 50, 100, 500, 1000, 2000, 5000]
-
-    let majorStep = 10
-    for (let s of steps) {
-      if ((s / visibleMax) * containerHeight >= minLabelGap) {
-        majorStep = s
-        break
-      }
-    }
-
-    const result = []
-    let val = 0
-    while (val <= visibleMax) {
-      const pos = (val / visibleMax) * 100
-      const isMajor = val % (majorStep * 5) === 0
-      result.push({ val, pos, isMajor })
-      val += majorStep
-    }
-
-    return result
-  }, [visibleMax, containerHeight])
-
-  // Warning bar gradient stops
-  const redStop = (10 / visibleMax) * 100
-  const yellowStop = (30 / visibleMax) * 100
-
-  // Color based on altitude
-  const getColors = () => {
-    if (altitudeFeet <= 10) {
-      return {
-        arrow: '#ff0000',
-        bg: 'rgba(255, 0, 0, 0.3)',
-        border: '#ff0000',
-      }
-    } else if (altitudeFeet <= 30) {
-      return {
-        arrow: '#ffff00',
-        bg: 'rgba(255, 255, 0, 0.2)',
-        border: '#ffff00',
-      }
-    } else {
-      return {
-        arrow: '#00ff00',
-        bg: 'rgba(0, 255, 0, 0.1)',
-        border: '#00ff00',
-      }
-    }
-  }
-
-  const colors = getColors()
-  const pixelOffset = (arrowPosPercent / 100) * containerHeight
+  const { altitudeFeet, ticks, colors, gradientStops, pixelOffset } = useAltitudeScale(
+    altitude,
+    containerHeight
+  )
+  const targetFeet = convertToFeet(target)
 
   return (
     <div
@@ -102,9 +33,9 @@ const Altitude = () => {
           className="absolute left-0.5 bottom-0 w-2.5 h-full"
           style={{
             background: `linear-gradient(to top, 
-              #ff0000 0%, #ff0000 ${redStop}%, 
-              #ffff00 ${redStop}%, #ffff00 ${yellowStop}%, 
-              #00ff00 ${yellowStop}%, #00ff00 100%)`,
+              #ff0000 0%, #ff0000 ${gradientStops.red}%, 
+              #ffff00 ${gradientStops.red}%, #ffff00 ${gradientStops.yellow}%, 
+              #00ff00 ${gradientStops.yellow}%, #00ff00 100%)`,
           }}
         />
 
