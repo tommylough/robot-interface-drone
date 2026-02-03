@@ -30,7 +30,7 @@ class FlightModeManager:
         elif self.mode == 'takeoff':
             pid_controller.set_target_altitude(self.auto_targets['takeoff'])
             if abs(altitude - self.auto_targets['takeoff']) < 0.1:
-                self.mode = 'hover'
+                self.mode = 'manual'  # Switch to manual for user control
         
         elif self.mode == 'land':
             # Clear all disturbances for vertical descent
