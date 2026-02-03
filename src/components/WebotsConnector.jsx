@@ -39,6 +39,18 @@ export const switchCamera = (camera) => {
   }
 }
 
+export const sendCameraControl = (pitch, yaw) => {
+  if (socket && socket.readyState === WebSocket.OPEN) {
+    socket.send(
+      JSON.stringify({
+        type: 'camera_control',
+        pitch,
+        yaw,
+      }),
+    )
+  }
+}
+
 const WebotsConnector = () => {
   const setCameraImage = useCameraStore((state) => state.setCameraImage)
   const setActiveCamera = useCameraStore((state) => state.setActiveCamera)
