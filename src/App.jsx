@@ -32,7 +32,7 @@ export default function App() {
         <h1 className="text-red-500 font-bold text-2xl">Robot Interface</h1>
         {/*<FlightControls />*/}
         <SimulationControls />
-        <TelemetryDisplay />
+        {/*<TelemetryDisplay />*/}
       </div>
     </>
   )

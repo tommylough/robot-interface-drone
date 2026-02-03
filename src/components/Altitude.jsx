@@ -5,6 +5,8 @@ import { useAltitudeScale, convertToFeet } from '../hooks/useAltitudeScale'
 const Altitude = () => {
   const altitude = useTelemetryStore((state) => state.telemetry.altitude)
   const target = useTelemetryStore((state) => state.telemetry.target)
+  const gps = useTelemetryStore((state) => state.telemetry.gps)
+  const windSpeed = useTelemetryStore((state) => state.telemetry.wind_speed)
   const [containerHeight, setContainerHeight] = useState(500)
 
   const { altitudeFeet, ticks, colors, gradientStops, pixelOffset } = useAltitudeScale(
@@ -18,6 +20,20 @@ const Altitude = () => {
       className="flex flex-col items-start h-full w-full text-white p-10 pb-2"
       style={{ overflow: 'visible' }}
     >
+      {/* Airspeed and GPS Info */}
+      <div className="w-full mb-4 space-y-2 text-xs">
+        <div className="flex justify-between items-center px-2">
+          <span className="text-gray-400">Airspeed:</span>
+          <span className="font-mono text-green-400">{windSpeed ? `${windSpeed.toFixed(1)} mph` : '0.0 mph'}</span>
+        </div>
+        <div className="flex justify-between items-center px-2">
+          <span className="text-gray-400">GPS:</span>
+          <span className="font-mono text-green-400 text-[10px]">
+            {gps && altitude > 0 ? `${gps.lat.toFixed(4)}, ${gps.lon.toFixed(4)}` : '-- --'}
+          </span>
+        </div>
+      </div>
+      
       {/* Scale Container */}
       <div
         ref={(el) => {
