@@ -24,7 +24,7 @@ const MainView = () => {
 
   return (
     <div className="h-screen bg-black flex items-center justify-center font-sans text-green-600">
-      <div className="w-420 h-262.5 p-10">
+      <div className="w-420 h-275 p-10">
         <div className="grid h-full grid-cols-[80px_1fr_350px] grid-rows-[1fr_350px] gap-4">
           {/* Sidebar */}
           <div className="row-span-2 flex flex-col items-center justify-between rounded-2xl bg-main-panel py-6">
@@ -36,7 +36,7 @@ const MainView = () => {
             <div className="h-10 w-10 rounded-full bg-[#1a1a1a]" />
           </div>
           {/* Top Middle - Primary View */}
-          <div className="rounded-3xl bg-main-panel relative overflow-hidden">
+          <div className="rounded-3xl relative overflow-hidden">
             <CameraView />
           </div>
           {/* Top Right - Status Panel */}
