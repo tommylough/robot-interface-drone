@@ -78,18 +78,18 @@ const MainView = () => {
           {/* Bottom Middle - Controls/Telemetry */}
           <div className="rounded-3xl bg-main-panel p-6">
             <div className="h-full w-full">
-              <CameraControls />
-              <FlightControls />
+              <div className="flex-1 flex items-center justify-center p-3r scale-90 ">
+                <Compass />
+              </div>
+              <div>
+                <Orientation />
+              </div>
+              {/*<FlightControls />*/}
             </div>
           </div>
           {/* Bottom Right - Map/Compass */}
-          <div className="rounded-3xl bg-main-panel flex-col flex-1 gap-2 ">
-            <div className="flex-1 flex items-center justify-center p-3r scale-90 ">
-              <Compass />
-            </div>
-            <div>
-              <Orientation />
-            </div>
+          <div className="rounded-3xl bg-main-panel">
+            <CameraControls />
           </div>
         </div>
       </div>
