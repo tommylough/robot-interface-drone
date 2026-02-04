@@ -77,14 +77,24 @@ const MainView = () => {
           </div>
           {/* Bottom Middle - Controls/Telemetry */}
           <div className="rounded-3xl bg-main-panel p-6">
-            <div className="h-full w-full">
-              <div className="flex-1 flex items-center justify-center p-3r scale-90 ">
-                <Compass />
+            <div className="flex h-full w-full gap-4">
+              <div
+                id="gauge"
+                className="flex-1 flex flex-col items-center justify-center"
+              >
+                <div className="flex items-center justify-center p-3r scale-90">
+                  <Compass />
+                </div>
+                <div>
+                  <Orientation />
+                </div>
               </div>
-              <div>
-                <Orientation />
+              <div
+                id="buttons"
+                className="flex-1 flex items-center justify-center"
+              >
+                <FlightControls />
               </div>
-              {/*<FlightControls />*/}
             </div>
           </div>
           {/* Bottom Right - Map/Compass */}
