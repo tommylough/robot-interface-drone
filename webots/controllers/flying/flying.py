@@ -1,4 +1,4 @@
-from controller import Robot
+from controller import Supervisor
 import logging
 
 from config import CONFIG
@@ -9,14 +9,19 @@ from control.flight_modes import FlightModeManager
 from communication.websocket_server import WebSocketServer
 from communication.telemetry import TelemetryFormatter
 from perception.camera_processor import CameraProcessor
+from perception.world_mapper import WorldMapper
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main():
-    # Initialize robot
-    robot = Robot()
+    # Initialize robot as Supervisor to access world data
+    robot = Supervisor()
     timestep = int(robot.getBasicTimeStep())
+    
+    # Build map data once at startup
+    mapper = WorldMapper(robot)
+    map_data = mapper.get_map_data()
     
     # Initialize subsystems
     sensors = SensorManager(robot, timestep)
@@ -43,6 +48,9 @@ def main():
     
     # Start WebSocket server
     websocket.start()
+    
+    # Send initial map data
+    websocket.send_map_data(map_data)
     
     # Wait one step for sensors to initialize
     robot.step(timestep)

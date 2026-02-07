@@ -87,6 +87,8 @@ const WebotsConnector = () => {
           yaw: data.telemetry.yaw,
           heading: data.telemetry.heading,
           gps: data.telemetry.gps,
+          x: data.telemetry.gps?.x,
+          y: data.telemetry.gps?.y,
           battery: data.telemetry.battery,
           signal_strength: data.telemetry.signal_strength,
           temperatures: data.telemetry.temperatures,
@@ -94,6 +96,11 @@ const WebotsConnector = () => {
           flight_mode: data.telemetry.flight_mode,
           timestamp: data.timestamp,
         })
+      }
+
+      // Dispatch map data events for TacticalMap component
+      if (data.type === 'map_data') {
+        window.dispatchEvent(new MessageEvent('webots-message', { data: event.data }))
       }
     }
 

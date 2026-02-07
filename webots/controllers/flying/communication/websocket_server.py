@@ -17,6 +17,7 @@ class WebSocketServer:
         self.camera_switch_callback = None
         self.camera_control_callback = None
         self.latest_frame = {'data': None, 'lock': threading.Lock()}
+        self.map_data = None
     
     def set_flight_mode_callback(self, callback):
         """Set callback for flight mode changes"""
@@ -33,6 +34,13 @@ class WebSocketServer:
     async def handler(self, websocket):
         """Handle WebSocket connections"""
         self.clients.add(websocket)
+        
+        # Send map data to newly connected client
+        if self.map_data:
+            try:
+                await websocket.send(self.map_data)
+            except:
+                pass
         
         try:
             async for message in websocket:
@@ -122,3 +130,10 @@ class WebSocketServer:
         """Update latest frame for broadcasting"""
         with self.latest_frame['lock']:
             self.latest_frame['data'] = frame_data
+    
+    def send_map_data(self, map_data):
+        """Store map data for sending to clients"""
+        self.map_data = json.dumps({
+            'type': 'map_data',
+            'data': map_data
+        })
