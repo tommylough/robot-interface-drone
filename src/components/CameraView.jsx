@@ -26,14 +26,14 @@ const CameraController = () => {
   useFrame(({ camera }) => {
     // Position camera at drone location
     camera.position.set(0, telemetry.altitude, 0)
-    
+
     // Apply drone orientation (pitch, yaw, roll)
     // Webots uses different axis conventions, may need adjustment
     const euler = new THREE.Euler(
-      telemetry.pitch,  // rotation around X axis
-      telemetry.yaw,    // rotation around Y axis
-      telemetry.roll,   // rotation around Z axis
-      'XYZ'
+      telemetry.pitch, // rotation around X axis
+      telemetry.yaw, // rotation around Y axis
+      telemetry.roll, // rotation around Z axis
+      'XYZ',
     )
     camera.quaternion.setFromEuler(euler)
   })
@@ -53,10 +53,10 @@ const CameraView = () => {
           No Camera Feed
         </div>
       )}
-      
+
       {/* HUD Overlay */}
       <HUD />
-      
+
       {/* Three.js overlay */}
       <Canvas
         className="absolute inset-0 pointer-events-none"
@@ -69,8 +69,8 @@ const CameraView = () => {
       >
         <ambientLight intensity={0.5} />
         <directionalLight position={[5, 5, 5]} intensity={1} />
-        <CameraController />
-        <CylinderOverlay />
+        {/*<CameraController />
+        <CylinderOverlay />*/}
       </Canvas>
     </div>
   )

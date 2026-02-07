@@ -1,4 +1,5 @@
 import { useTelemetryStore, useCameraStore } from '../store/useStore'
+import LinearCompass from './LinearCompass'
 
 const HUD = () => {
   const { telemetry } = useTelemetryStore()
@@ -7,10 +8,17 @@ const HUD = () => {
   // Convert radians to degrees
   const pitchDeg = (telemetry.pitch * 180) / Math.PI
   const rollDeg = (telemetry.roll * 180) / Math.PI
+  const headingDeg = (telemetry.yaw * 180) / Math.PI
+
+  // Normalize heading to 0-360
+  const heading = ((headingDeg % 360) + 360) % 360
 
   return (
     <div className="absolute inset-0 pointer-events-none">
-      <svg className="w-full h-full" viewBox="0 0 400 225">
+      <svg className="m-5" viewBox="0 0 400 225">
+        {/* Linear Compass at top */}
+        <LinearCompass heading={heading} />
+
         {/* Center Crosshair - always visible */}
         <g transform="translate(200, 112.5)">
           {/* Center dot */}
