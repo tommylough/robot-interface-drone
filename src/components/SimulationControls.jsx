@@ -1,8 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { sendDroneCommand } from './WebotsConnector'
-import { useDroneStore } from '../store/useStore'
+import { useDroneStore, useTelemetryStore } from '../store/useStore'
+
+const MIN_SPEED = 1
+const MAX_SPEED = 2.0
+const ACCELERATION_RATE = 0.05
 
 const SimulationControls = () => {
+  const flightMode = useTelemetryStore((state) => state.telemetry.flight_mode)
   const [keys, setKeys] = useState({
     w: false,
     a: false,
@@ -15,6 +20,15 @@ const SimulationControls = () => {
   })
   const sensitivity = useDroneStore((state) => state.sensitivity)
   const wasAnyKeyPressed = useRef(false)
+  const currentSpeed = useRef(0) // Positive = forward, negative = backward
+
+  // Reset speed when switching to hover mode
+  useEffect(() => {
+    if (flightMode === 'hover') {
+      currentSpeed.current = 0
+      sendDroneCommand(0, 0, 0, 0)
+    }
+  }, [flightMode])
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -74,13 +88,23 @@ const SimulationControls = () => {
       vertical -= sensitivity
     }
 
-    // Forward/backward
+    // Forward/backward with acceleration - speed persists when released
     if (keys.w) {
-      pitch += sensitivity
+      // Accelerate forward
+      currentSpeed.current = Math.min(
+        MAX_SPEED,
+        currentSpeed.current + ACCELERATION_RATE,
+      )
+    } else if (keys.s) {
+      // Accelerate backward
+      currentSpeed.current = Math.max(
+        -MAX_SPEED,
+        currentSpeed.current - ACCELERATION_RATE,
+      )
     }
-    if (keys.s) {
-      pitch -= sensitivity
-    }
+    // Speed persists when neither W nor S is pressed
+
+    pitch += currentSpeed.current
 
     // Left/right strafe
     if (keys.a) {
@@ -105,8 +129,8 @@ const SimulationControls = () => {
       sendDroneCommand(vertical, roll, pitch, yaw)
       wasAnyKeyPressed.current = true
     } else if (wasAnyKeyPressed.current) {
-      // Send final zero command on release
-      sendDroneCommand(0, 0, 0, 0)
+      // Send final command with current speed maintained
+      sendDroneCommand(0, 0, currentSpeed.current, 0)
       wasAnyKeyPressed.current = false
     }
   }, [keys, sensitivity])
@@ -116,10 +140,19 @@ const SimulationControls = () => {
       <div className="text-white text-sm space-y-1">
         <p className="font-bold">Drone Controls:</p>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-          <div>W/S: Forward/Back</div>
+          <div>W/S: Forward/Back (accel)</div>
           <div>A/D: Strafe Left/Right</div>
           <div>Q/E: Yaw Left/Right</div>
           <div>↑/↓: Altitude Up/Down</div>
+        </div>
+        <div className="text-xs text-gray-400">
+          Speed: {Math.abs((currentSpeed.current / MAX_SPEED) * 100).toFixed(0)}
+          %{' '}
+          {currentSpeed.current < 0
+            ? '(backward)'
+            : currentSpeed.current > 0
+              ? '(forward)'
+              : ''}
         </div>
       </div>
 
