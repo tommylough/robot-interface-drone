@@ -153,6 +153,7 @@ Mavic2Pro {
   translation 0 0 0.1
   rotation 0 0 1 0
   controller "flying"
+  supervisor TRUE
   cameraSlot [
     Camera {
       width 400

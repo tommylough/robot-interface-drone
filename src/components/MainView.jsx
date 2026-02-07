@@ -4,6 +4,7 @@ import Compass from './Compass'
 import Orientation from './Orientation'
 import Altitude from './Altitude'
 import FlightControls from './FlightControls'
+import TacticalMap from './TacticalMap'
 import { useTelemetryStore } from '../store/useStore'
 
 const MainView = () => {
@@ -79,15 +80,10 @@ const MainView = () => {
           <div className="rounded-3xl bg-main-panel p-6">
             <div className="flex h-full w-full gap-4">
               <div
-                id="gauge"
+                id="map"
                 className="flex-1 flex flex-col items-center justify-center"
               >
-                <div className="flex items-center justify-center p-3r scale-90">
-                  <Compass />
-                </div>
-                <div>
-                  <Orientation />
-                </div>
+                <TacticalMap />
               </div>
               <div
                 id="buttons"
