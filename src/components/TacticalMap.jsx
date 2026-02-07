@@ -64,40 +64,60 @@ const TacticalMap = () => {
     ctx.fillStyle = '#1a1a1a'
     ctx.fillRect(0, 0, width, height)
 
+    // Get drone position and heading
+    const droneX = telemetry.x || 0
+    const droneY = telemetry.y || 0
+    const droneHeading = (telemetry.yaw || 0) * (180 / Math.PI)
+
     // Map bounds from world
     const bounds = mapData.bounds
     const worldWidth = bounds.max_x - bounds.min_x
     const worldHeight = bounds.max_y - bounds.min_y
 
-    // Scale factor to fit world into canvas with zoom
+    // Scale factor with zoom
     const baseScale = Math.min(width / worldWidth, height / worldHeight) * 0.9
     const scale = baseScale * zoom
-    const offsetX = width / 2 + pan.x
-    const offsetY = height / 2 + pan.y
 
-    // Convert world coords to canvas coords
+    // Save context for rotation
+    ctx.save()
+    
+    // Translate to center of canvas
+    ctx.translate(width / 2, height / 2)
+    
+    // Rotate map so drone's heading is always up (subtract 90 degree offset)
+    ctx.rotate(((droneHeading - 90) * Math.PI) / 180)
+    
+    // Apply pan offset
+    ctx.translate(pan.x, pan.y)
+
+    // Convert world coords to canvas coords (relative to drone)
     const toCanvas = (x, y) => {
+      const relX = x - droneX
+      const relY = y - droneY
       return {
-        x: offsetX + x * scale,
-        y: offsetY - y * scale // Flip Y axis
+        x: relX * scale,
+        y: -relY * scale // Flip Y axis
       }
     }
 
-    // Draw grid
+    // Draw grid (centered on drone)
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
     ctx.lineWidth = 1
-    for (let i = -200; i <= 200; i += 50) {
+    const gridSize = 50
+    const gridRange = 400
+    
+    for (let i = -gridRange; i <= gridRange; i += gridSize) {
       // Vertical lines
-      const start = toCanvas(i, -200)
-      const end = toCanvas(i, 200)
+      const start = toCanvas(droneX + i, droneY - gridRange)
+      const end = toCanvas(droneX + i, droneY + gridRange)
       ctx.beginPath()
       ctx.moveTo(start.x, start.y)
       ctx.lineTo(end.x, end.y)
       ctx.stroke()
 
       // Horizontal lines
-      const start2 = toCanvas(-200, i)
-      const end2 = toCanvas(200, i)
+      const start2 = toCanvas(droneX - gridRange, droneY + i)
+      const end2 = toCanvas(droneX + gridRange, droneY + i)
       ctx.beginPath()
       ctx.moveTo(start2.x, start2.y)
       ctx.lineTo(end2.x, end2.y)
@@ -118,7 +138,7 @@ const TacticalMap = () => {
           size = 8
           break
         case 'building':
-          color = '#ef4444'
+          color = '#f97316' // Orange
           size = 10
           break
         case 'tree':
@@ -152,48 +172,76 @@ const TacticalMap = () => {
       }
     })
 
-    // Draw drone position
-    if (telemetry.x !== undefined && telemetry.y !== undefined) {
-      const dronePos = toCanvas(telemetry.x, telemetry.y)
+    // Restore context after drawing map elements
+    ctx.restore()
 
-      // Draw drone icon
-      ctx.fillStyle = '#10b981'
-      ctx.strokeStyle = '#ffffff'
-      ctx.lineWidth = 2
+    // Draw drone icon at center (always fixed position, always pointing up)
+    const size = 24
+    
+    ctx.save()
+    ctx.translate(width / 2, height / 2)
+    
+    // Draw arrow shape pointing up
+    ctx.fillStyle = '#ef4444' // Red
+    ctx.strokeStyle = '#ffffff'
+    ctx.lineWidth = 2
+    
+    ctx.beginPath()
+    // Arrow point
+    ctx.moveTo(0, -size)
+    // Right side
+    ctx.lineTo(size * 0.4, -size * 0.3)
+    ctx.lineTo(size * 0.25, -size * 0.3)
+    ctx.lineTo(size * 0.25, size * 0.6)
+    // Bottom right
+    ctx.lineTo(-size * 0.25, size * 0.6)
+    ctx.lineTo(-size * 0.25, -size * 0.3)
+    // Left side
+    ctx.lineTo(-size * 0.4, -size * 0.3)
+    ctx.closePath()
+    
+    ctx.fill()
+    ctx.stroke()
+    ctx.restore()
 
-      // Triangle pointing in heading direction
-      const heading = (telemetry.yaw || 0) * (180 / Math.PI)
-      const size = 12
-      ctx.save()
-      ctx.translate(dronePos.x, dronePos.y)
-      ctx.rotate((-heading * Math.PI) / 180)
-      ctx.beginPath()
-      ctx.moveTo(0, -size)
-      ctx.lineTo(size / 2, size / 2)
-      ctx.lineTo(-size / 2, size / 2)
-      ctx.closePath()
-      ctx.fill()
-      ctx.stroke()
-      ctx.restore()
+    // Draw position text at center
+    ctx.fillStyle = '#ffffff'
+    ctx.font = '12px monospace'
+    ctx.fillText(
+      `(${droneX.toFixed(1)}, ${droneY.toFixed(1)})`,
+      width / 2 + 15,
+      height / 2 - 15
+    )
 
-      // Draw position text
-      ctx.fillStyle = '#ffffff'
-      ctx.font = '12px monospace'
-      ctx.fillText(
-        `(${telemetry.x?.toFixed(1)}, ${telemetry.y?.toFixed(1)})`,
-        dronePos.x + 15,
-        dronePos.y - 15
-      )
-    }
+    // Draw compass rose showing north
+    ctx.save()
+    ctx.translate(width - 40, 40)
+    ctx.rotate(((droneHeading - 90) * Math.PI) / 180)
+    
+    // North indicator
+    ctx.fillStyle = '#ffffff'
+    ctx.font = 'bold 14px monospace'
+    ctx.textAlign = 'center'
+    ctx.fillText('N', 0, -15)
+    
+    // Arrow pointing north
+    ctx.fillStyle = '#ffffff'
+    ctx.beginPath()
+    ctx.moveTo(0, -10)
+    ctx.lineTo(5, 0)
+    ctx.lineTo(-5, 0)
+    ctx.closePath()
+    ctx.fill()
+    ctx.restore()
 
     // Draw legend
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)'
     ctx.fillRect(10, 10, 120, 140)
 
     const legend = [
-      { color: '#10b981', label: 'Drone' },
+      { color: '#ef4444', label: 'Drone' },
       { color: '#3b82f6', label: 'Windmill' },
-      { color: '#ef4444', label: 'Building' },
+      { color: '#f97316', label: 'Building' },
       { color: '#22c55e', label: 'Tree' },
       { color: '#eab308', label: 'Vehicle' },
       { color: '#6b7280', label: 'Road' },
@@ -237,7 +285,8 @@ const TacticalMap = () => {
         onMouseLeave={handleMouseUp}
       />
       <div className="absolute bottom-2 right-2 text-white text-xs opacity-50 pointer-events-none">
-        Zoom: {zoom.toFixed(1)}x | Scroll to zoom, drag to pan
+        Zoom: {zoom.toFixed(1)}x | Scroll to zoom, drag to pan<br />
+        Heading: {((telemetry.yaw || 0) * (180 / Math.PI)).toFixed(0)}°
       </div>
     </div>
   )
