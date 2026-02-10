@@ -28,17 +28,6 @@ export const setFlightMode = (mode) => {
   }
 }
 
-export const switchCamera = (camera) => {
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    socket.send(
-      JSON.stringify({
-        type: 'camera_switch',
-        camera,
-      }),
-    )
-  }
-}
-
 export const sendCameraControl = (pitch, yaw) => {
   if (socket && socket.readyState === WebSocket.OPEN) {
     socket.send(
@@ -100,7 +89,9 @@ const WebotsConnector = () => {
 
       // Dispatch map data events for TacticalMap component
       if (data.type === 'map_data') {
-        window.dispatchEvent(new MessageEvent('webots-message', { data: event.data }))
+        window.dispatchEvent(
+          new MessageEvent('webots-message', { data: event.data }),
+        )
       }
     }
 

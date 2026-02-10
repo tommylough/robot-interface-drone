@@ -6,10 +6,26 @@ class FlightModeManager:
             'land': 0.3,
             'hover': None
         }
+        self.home_position = None
+        self.emergency_stopped = False
     
     def set_mode(self, mode):
         """Set flight mode"""
-        if mode in ['idle', 'manual', 'takeoff', 'land', 'hover']:
+        if mode in ['idle', 'manual', 'takeoff', 'land', 'hover', 'rth', 'emergency_stop']:
+            # Emergency stop kills everything and lands
+            if mode == 'emergency_stop':
+                self.emergency_stopped = False  # Clear emergency flag
+                self.mode = 'land'  # Initiate landing
+                return True
+            
+            # Return to home
+            if mode == 'rth':
+                self.mode = 'rth'
+                return True
+            
+            # Clear emergency stop flag when switching to other modes
+            self.emergency_stopped = False
+            
             self.mode = mode
             # Reset hover target when switching modes
             if mode != 'hover':
@@ -21,11 +37,47 @@ class FlightModeManager:
         """Get current flight mode"""
         return self.mode
     
-    def update(self, altitude, pid_controller):
+    def set_home_position(self, position):
+        """Set home position for return to home"""
+        if self.home_position is None:
+            self.home_position = position
+    
+    def update(self, altitude, pid_controller, current_position=None):
         """Update flight mode logic and set appropriate targets"""
+        # Emergency stop overrides everything
+        if self.emergency_stopped:
+            pid_controller.disturbances = {'roll': 0, 'pitch': 0, 'yaw': 0}
+            return
+        
+        # Set home position on first update if not set
+        if current_position and self.home_position is None:
+            self.set_home_position(current_position)
+        
         if self.mode == 'idle':
             # Stay grounded, don't change altitude
             pass
+        
+        elif self.mode == 'rth':
+            # Return to home position
+            if self.home_position and current_position:
+                # Calculate distance to home
+                dx = self.home_position[0] - current_position[0]
+                dz = self.home_position[2] - current_position[2]
+                distance = (dx**2 + dz**2)**0.5
+                
+                # Navigate towards home
+                if distance > 0.5:
+                    # Still far from home, maintain altitude and navigate
+                    pid_controller.set_target_altitude(2.0)
+                    # Add navigation disturbances based on direction
+                    pid_controller.disturbances['roll'] = max(-0.5, min(0.5, dz * 0.2))
+                    pid_controller.disturbances['pitch'] = max(-0.5, min(0.5, dx * 0.2))
+                else:
+                    # Close to home, initiate landing
+                    self.mode = 'land'
+            else:
+                # No home position set, just land
+                self.mode = 'land'
         
         elif self.mode == 'takeoff':
             pid_controller.set_target_altitude(self.auto_targets['takeoff'])

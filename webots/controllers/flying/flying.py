@@ -71,7 +71,8 @@ def main():
         altitude = position['z']
         
         # Update flight mode logic
-        flight_mode.update(altitude, pid)
+        current_pos = [position['x'], position['y'], position['z']]
+        flight_mode.update(altitude, pid, current_pos)
         
         # In idle mode, disable all motors and ignore commands
         if flight_mode.is_idle():
