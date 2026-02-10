@@ -16,8 +16,8 @@ const FlightControls = () => {
           disabled={flightMode === 'takeoff'}
           className={`flex-1 px-3 py-2 rounded font-bold text-sm transition-colors ${
             flightMode === 'takeoff'
-              ? 'bg-green-600 cursor-not-allowed'
-              : 'bg-green-500 hover:bg-green-600'
+              ? 'bg-blue-600 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
           }`}
         >
           TAKEOFF
@@ -40,11 +40,27 @@ const FlightControls = () => {
           disabled={flightMode === 'land'}
           className={`flex-1 px-3 py-2 rounded font-bold text-sm transition-colors ${
             flightMode === 'land'
-              ? 'bg-orange-600 cursor-not-allowed'
-              : 'bg-orange-500 hover:bg-orange-600'
+              ? 'bg-blue-600 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
           }`}
         >
           LAND
+        </button>
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          onClick={() => setFlightMode('rth')}
+          className="flex-1 px-3 py-2 rounded font-bold text-sm bg-blue-500 hover:bg-blue-600 transition-colors"
+        >
+          RTH
+        </button>
+
+        <button
+          onClick={() => setFlightMode('emergency_stop')}
+          className="flex-1 px-3 py-2 rounded font-bold text-sm bg-red-600 hover:bg-red-700 transition-colors"
+        >
+          EMERGENCY STOP
         </button>
       </div>
 
