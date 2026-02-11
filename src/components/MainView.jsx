@@ -26,16 +26,7 @@ const MainView = () => {
   return (
     <div className="h-screen bg-black flex items-center justify-center font-sans text-green-600">
       <div className="w-420 h-275 p-10">
-        <div className="grid h-full grid-cols-[80px_1fr_350px] grid-rows-[1fr_350px] gap-4">
-          {/* Sidebar */}
-          <div className="row-span-2 flex flex-col items-center justify-between rounded-2xl bg-main-panel py-6">
-            <div className="flex flex-col gap-6">
-              <div className="h-10 w-10 rounded-lg bg-[#1a1a1a]" />
-              <div className="h-10 w-10 rounded-lg bg-[#1a1a1a]" />
-              <div className="h-10 w-10 rounded-lg bg-[#1a1a1a]" />
-            </div>
-            <div className="h-10 w-10 rounded-full bg-[#1a1a1a]" />
-          </div>
+        <div className="grid h-full grid-cols-[1fr_350px] grid-rows-[1fr_350px] gap-4">
           {/* Top Middle - Primary View */}
           <div className="rounded-3xl relative overflow-hidden">
             <CameraView />
@@ -77,17 +68,17 @@ const MainView = () => {
             </div>
           </div>
           {/* Bottom Middle - Controls/Telemetry */}
-          <div className="rounded-3xl bg-main-panel p-6">
-            <div className="flex h-full w-full gap-4">
+          <div>
+            <div className="flex flex-row h-full gap-4">
               <div
                 id="map"
-                className="flex-1 flex flex-col items-center justify-center"
+                className="flex-1 flex flex-col items-center justify-center w-full rounded-3xl bg-main-panel p-6"
               >
                 <TacticalMap />
               </div>
               <div
                 id="buttons"
-                className="flex-1 flex items-center justify-center"
+                className="flex-1 flex items-center justify-center rounded-3xl bg-main-panel p-6"
               >
                 <FlightControls />
               </div>

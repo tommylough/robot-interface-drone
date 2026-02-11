@@ -29,7 +29,9 @@ const CameraControls = () => {
     <div className=" text-white rounded-lg">
       {/* 3D Trackball */}
       <div>
-        <div className="flex justify-center text-2xl mt-1.5">Camera</div>
+        <div className="flex justify-center text-2xl mt-1.5 uppercase">
+          Camera
+        </div>
         <div className="h-64">
           <Canvas
             camera={{ position: [0, 3, 0], fov: 60 }}

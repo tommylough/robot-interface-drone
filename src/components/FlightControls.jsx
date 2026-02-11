@@ -5,8 +5,8 @@ const FlightControls = () => {
   const flightMode = useTelemetryStore((state) => state.telemetry.flight_mode)
 
   return (
-    <div className="bg-black/50 backdrop-blur-sm text-white p-4 rounded-lg space-y-3">
-      <h3 className="text-sm font-bold uppercase tracking-wide border-b border-white/20 pb-2">
+    <div className=" text-white p-4 rounded-lg space-y-15">
+      <h3 className="text-2xl mt-1.5 uppercase pb-2 text-center">
         Flight Controls
       </h3>
 
@@ -64,7 +64,7 @@ const FlightControls = () => {
         </button>
       </div>
 
-      <div className="text-xs text-center">
+      <div className="text-s text-center">
         <span className="text-gray-400">Current Mode: </span>
         <span className="font-bold uppercase">{flightMode}</span>
       </div>
