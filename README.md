@@ -1,74 +1,70 @@
 # Drone Interface
 
-A real-time drone control interface built with React Three Fiber and Webots. Control a DJI Mavic 2 Pro quadcopter simulation through an interactive web interface with live camera feed and sensor-stabilized flight.
+A real-time drone control interface built with React and Webots. Control a DJI Mavic 2 Pro quadcopter simulation through an interactive web UI with live camera feed, tactical map, telemetry, and sensor-stabilized flight.
 
 ![Drone Interface](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
+![Drone Interface UI](public/images/drone_ui.jpg)
+
 ## Features
 
-- 🚁 **Real-time Drone Control** - Fly a simulated DJI Mavic 2 Pro with keyboard controls
-- 📹 **Live Camera Feed** - Stream video from the drone's front camera via WebSocket
-- 🎮 **6-Axis Control** - Full control over altitude, pitch, roll, and yaw
-- 🔄 **Auto-Stabilization** - PID-controlled flight using IMU, GPS, and gyro sensors
-- 🎨 **3D Visualization** - React Three Fiber canvas for future HUD elements
-- 📊 **Real-time Telemetry** - Live altitude, roll, and pitch data streaming
+- 🚁 **Real-time Drone Control** — Keyboard-driven 6-axis flight with acceleration model
+- 📹 **Live Camera Feed** — Front camera streamed via WebSocket with HUD overlay
+- 🎮 **Flight Modes** — Takeoff, Hover, Land, Return to Home, and Emergency Stop
+- 🗺️ **Tactical Map** — Live canvas map built from Webots world objects with zoom and pan
+- 📡 **Full Telemetry** — Altitude, GPS, heading, roll/pitch/yaw, battery, signal, motor temps, wind speed
+- 🎯 **Camera Gimbal** — 3D trackball control for pitch/yaw with attitude HUD fade
+- 🧭 **Compass & Artificial Horizon** — Live orientation display with pitch ladder
+- 📊 **Altitude Scale** — Visual altitude indicator with color-coded warning bands
+- 🔄 **PID Stabilization** — IMU/GPS/gyro-based stabilization with disturbance decay
 
 ## Tech Stack
 
 **Frontend:**
 - React 18
-- React Three Fiber (@react-three/fiber, @react-three/drei)
+- React Three Fiber + Three.js
 - Zustand (state management)
-- Vite (build tool)
 - Tailwind CSS
+- Vite
 
 **Backend:**
 - Python 3
-- Webots R2025a (robotics simulator)
-- WebSockets (asyncio, websockets)
+- Webots R2025a
+- asyncio + websockets
 - Pillow (image processing)
 
 ## Prerequisites
 
-- **Node.js** 18+ and npm/yarn
-- **Python** 3.8+
-- **Webots** R2025a or later
-- **Python packages:**
+- Node.js 18+ and yarn or npm
+- Python 3.8+
+- Webots R2025a or later
+- Python packages:
   ```bash
   pip install websockets pillow --break-system-packages
   ```
 
 ## Installation
 
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
    git clone <your-repo-url>
    cd robot-interface
    ```
 
-2. **Install Node dependencies:**
+2. Install Node dependencies:
    ```bash
    yarn install
-   # or
-   npm install
    ```
 
-3. **Verify Webots installation:**
-   - Webots should be installed at `/Applications/Webots.app` (macOS)
-   - Ensure the Mavic2Pro robot model is available
+3. Verify Webots is installed at `/Applications/Webots.app` (macOS)
 
 ## Running the Project
 
-### 1. Start Webots Simulation
+### 1. Start Webots
 
-**Option A: Using Webots GUI**
-```bash
-open /Applications/Webots.app
-```
-Then open `./webots/worlds/flying-drone.wbt`
+Open Webots and load `./webots/worlds/flying-drone.wbt`, or run headless:
 
-**Option B: Command line (headless)**
 ```bash
 /Applications/Webots.app/Contents/MacOS/webots \
   --stream \
@@ -77,29 +73,20 @@ Then open `./webots/worlds/flying-drone.wbt`
   ./webots/worlds/flying-drone.wbt
 ```
 
-The Python controller will automatically start and you'll see:
+The Python controller starts automatically. You'll see:
 ```
 INFO:__main__:WebSocket running on ws://localhost:8765
-INFO:__main__:Drone ready!
 ```
 
-### 2. Start React Development Server
+### 2. Start the React Dev Server
 
-In a new terminal:
 ```bash
 yarn dev
-# or
-npm run dev
 ```
 
-Navigate to `http://localhost:5173` (or the port shown in your terminal)
+Navigate to `http://localhost:5173`
 
-### 3. Connect and Fly!
-
-Once both servers are running, the interface will automatically connect. You should see:
-- "Connected to Webots Python controller" in browser console
-- Live camera feed in the interface
-- The drone will automatically take off and stabilize
+Once both are running the interface connects automatically and the drone will be ready in idle mode.
 
 ## Controls
 
@@ -107,14 +94,24 @@ Once both servers are running, the interface will automatically connect. You sho
 |-----|--------|
 | **↑** | Increase altitude |
 | **↓** | Decrease altitude |
-| **W** | Pitch forward (move forward) |
-| **S** | Pitch backward (move backward) |
-| **A** | Roll left (strafe left) |
-| **D** | Roll right (strafe right) |
-| **Q** | Yaw left (rotate counter-clockwise) |
-| **E** | Yaw right (rotate clockwise) |
+| **W** | Accelerate forward |
+| **S** | Accelerate backward |
+| **A** | Strafe left |
+| **D** | Strafe right |
+| **Q** | Yaw left |
+| **E** | Yaw right |
 
-The drone uses PID stabilization, so it will automatically level itself when you release controls.
+Forward/backward speed accumulates while W/S are held and persists when released. Hover mode clears speed and holds position.
+
+## Flight Modes
+
+| Mode | Behavior |
+|------|----------|
+| **Takeoff** | Climbs to 2.0m then switches to manual |
+| **Hover** | Locks altitude, decays movement disturbances |
+| **Land** | Staged descent, switches to idle at ground |
+| **RTH** | Navigates back to takeoff position then lands |
+| **Emergency Stop** | Immediately initiates landing |
 
 ## Project Structure
 
@@ -122,161 +119,108 @@ The drone uses PID stabilization, so it will automatically level itself when you
 robot-interface/
 ├── src/
 │   ├── components/
-│   │   ├── WebotsConnector.jsx    # WebSocket connection manager
-│   │   ├── SimulationControls.jsx  # Keyboard input handler
-│   │   ├── CameraView.jsx          # Live camera feed display
-│   │   └── Experience.jsx          # R3F 3D scene
+│   │   ├── WebotsConnector.jsx       # WebSocket connection, dispatches telemetry
+│   │   ├── FlightControls.jsx        # Flight mode buttons + keyboard controls
+│   │   ├── FlightControlsInfo.jsx    # Info overlay UI for flight controls
+│   │   ├── CameraView.jsx            # Live camera feed with HUD overlay
+│   │   ├── CameraControls.jsx        # 3D trackball gimbal control
+│   │   ├── HUD.jsx                   # SVG HUD with artificial horizon + compass
+│   │   ├── LinearCompass.jsx         # Top compass tape for HUD
+│   │   ├── Compass.jsx               # Circular compass with artificial horizon
+│   │   ├── Altitude.jsx              # Visual altitude scale + GPS + airspeed
+│   │   ├── TacticalMap.jsx           # Canvas map from world object data
+│   │   ├── TelemetryDisplay.jsx      # Full telemetry readout panel
+│   │   ├── Orientation.jsx           # Roll/pitch/heading display
+│   │   ├── Trackball.jsx             # R3F 3D trackball mesh
+│   │   ├── MainView.jsx              # Layout and top-level UI
+│   │   └── Experience.jsx            # R3F scene root
+│   ├── hooks/
+│   │   ├── useKeyboardFlightControls.js  # Keyboard input + drone command logic
+│   │   └── useAltitudeScale.js           # Altitude scale calculations
 │   ├── store/
-│   │   └── useStore.js             # Zustand state management
-│   ├── App.jsx                     # Main application component
-│   └── main.jsx                    # Application entry point
+│   │   └── useStore.js               # Zustand stores: drone, camera, telemetry
+│   ├── App.jsx
+│   └── main.jsx
 ├── webots/
 │   ├── controllers/
 │   │   └── flying/
-│   │       └── flying.py           # Python drone controller
+│   │       ├── flying.py             # Main control loop entry point
+│   │       ├── config.py             # PID constants and server config
+│   │       ├── communication/
+│   │       │   ├── websocket_server.py
+│   │       │   └── telemetry.py
+│   │       ├── control/
+│   │       │   ├── pid_controller.py
+│   │       │   └── flight_modes.py
+│   │       ├── hardware/
+│   │       │   ├── sensors.py
+│   │       │   └── actuators.py
+│   │       └── perception/
+│   │           ├── camera_processor.py
+│   │           └── world_mapper.py
 │   └── worlds/
-│       └── flying-drone.wbt        # Webots world file
-├── public/                         # Static assets
+│       └── flying-drone.wbt
+├── public/
+│   └── images/
 └── package.json
 ```
 
-## How It Works
-
-### Architecture
+## Architecture
 
 ```
-┌─────────────────┐     WebSocket      ┌──────────────────┐
-│  React Frontend │◄──────(8765)──────►│ Python Controller│
-│                 │                     │    (Webots)      │
-│  - Keyboard     │    Commands         │                  │
-│  - Camera View  │◄───────────────────│  - IMU/GPS/Gyro  │
-│  - Telemetry    │    Camera + Data    │  - PID Control   │
-└─────────────────┘                     │  - Motor Control │
-                                        └──────────────────┘
-```
-
-### Control Flow
-
-1. **User Input** → Keyboard events captured in React
-2. **Command Generation** → Converted to vertical/roll/pitch/yaw values
-3. **WebSocket Transmission** → JSON commands sent to Python controller
-4. **Sensor Reading** → IMU, GPS, gyro values read from Webots
-5. **PID Stabilization** → Control algorithms compute motor adjustments
-6. **Motor Actuation** → Propeller velocities set on drone
-7. **Feedback Loop** → Camera and telemetry streamed back to UI
-
-### Stabilization System
-
-The drone uses a PID (Proportional-Integral-Derivative) control system based on the official DJI Mavic 2 Pro controller:
-
-- **Roll/Pitch Stabilization:** Maintains level flight using IMU and gyroscope
-- **Altitude Control:** GPS-based altitude holding with cubic scaling
-- **User Commands:** Applied as "disturbances" on top of stabilization
-
-PID Constants (tunable in `flying.py`):
-```python
-'k_vertical_thrust': 68.5,  # Base hover thrust
-'k_vertical_p': 3.0,        # Altitude PID gain
-'k_roll_p': 50.0,           # Roll PID gain
-'k_pitch_p': 20.0,          # Pitch PID gain
+┌─────────────────────┐     WebSocket (8765)     ┌───────────────────────┐
+│   React Frontend    │◄────────────────────────►│  Python Controller    │
+│                     │                           │      (Webots)         │
+│  FlightControls     │── flight_mode command ───►│  FlightModeManager    │
+│  useKeyboard...     │── motor_command ─────────►│  PIDController        │
+│  CameraControls     │── camera_control ────────►│  MotorController      │
+│                     │                           │                       │
+│  CameraView + HUD   │◄── camera frame ──────────│  CameraProcessor      │
+│  TacticalMap        │◄── map_data ──────────────│  WorldMapper          │
+│  Telemetry/Altitude │◄── telemetry ─────────────│  SensorManager        │
+└─────────────────────┘                           └───────────────────────┘
 ```
 
 ## Configuration
 
-### Adjust Control Sensitivity
+### PID Constants (`config.py`)
 
-**In React** (`src/store/useStore.js`):
-```javascript
-export const useDroneStore = zustandCreate((set) => ({
-  sensitivity: 0.5, // Range: 0.1 to 1.0
-  // ...
-}))
-```
-
-**In Python** (`webots/controllers/flying/flying.py`):
-```python
-current_disturbances['roll'] = cmd['roll'] * -0.8
-current_disturbances['pitch'] = cmd['pitch'] * -1.2
-current_disturbances['yaw'] = cmd['yaw'] * -1.3
-```
-
-### Camera Quality
-
-In `flying.py` CONFIG:
 ```python
 CONFIG = {
-    'frame_interval': 2,    # Send every Nth frame (2 = 30fps)
-    'jpeg_quality': 85,     # JPEG compression quality (1-100)
+    'host': 'localhost',
+    'port': 8765,
+    'frame_interval': 2,       # Send every Nth frame
+    'jpeg_quality': 85,        # Camera compression quality
+    'k_vertical_thrust': 68.5, # Base hover thrust
+    'k_vertical_offset': 0.6,
+    'k_vertical_p': 3.0,       # Altitude P gain
+    'k_roll_p': 50.0,          # Roll P gain
+    'k_pitch_p': 20.0,         # Pitch P gain
 }
+```
+
+### Control Sensitivity (`src/store/useStore.js`)
+
+```javascript
+sensitivity: 0.5  // Range: 0.1 to 1.0
 ```
 
 ## Troubleshooting
 
-### Drone Flips Over Immediately
-- **Check starting position:** Drone should start on ground with `translation: 0 0 0.3` and `rotation: 0 0 1 0`
-- Edit `flying-drone.wbt` or use Webots UI to reset position
+**Drone flips immediately** — Check starting position in `flying-drone.wbt`: `translation: 0 0 0.3`, `rotation: 0 0 1 0`
 
-### WebSocket Connection Fails
-- Verify Python controller is running (check Webots console)
-- Ensure port 8765 is not blocked by firewall
-- Check browser console for connection errors
+**WebSocket connection fails** — Verify the Python controller is running in the Webots console and port 8765 is not blocked
 
-### No Camera Feed
-- Camera device is named `'camera'` in Webots
-- Verify camera is enabled in controller
-- Check browser console for WebSocket messages
+**No camera feed** — Camera device must be named `'camera'` in Webots; check the Webots console for errors
 
-### Controls Not Responding
-- Browser window must have focus
-- Check keyboard event listeners in browser DevTools
-- Verify WebSocket shows `readyState: 1` (OPEN)
+**Controls not responding** — Browser window must have focus; check `readyState: 1` in browser DevTools
 
-### Drone Drifts/Unstable
-- Adjust PID constants in `flying.py` CONFIG
-- Reduce disturbance multipliers
-- Check sensor readings in Webots console
-
-## Future Enhancements
-
-- [ ] Visual HUD with altitude/heading display in R3F scene
-- [ ] Waypoint navigation system
-- [ ] Autonomous flight modes (orbit, follow, return-to-home)
-- [ ] Multiple drone support
-- [ ] Joystick/gamepad support
-- [ ] Recording and playback of flight paths
-- [ ] Obstacle avoidance using LIDAR
-- [ ] First-person view (FPV) mode
-
-## Development
-
-### Building for Production
-```bash
-yarn build
-# or
-npm run build
-```
-
-Output will be in `dist/` directory.
-
-### Code Style
-- React components use functional components with hooks
-- Python follows PEP 8 style guide
-- Semicolons omitted in JavaScript (per Vite config)
+**Tactical map not showing** — Map data is sent once at startup from `WorldMapper`; verify the WebSocket is connected before the world loads
 
 ## License
 
-MIT License - feel free to use this project for learning or commercial purposes.
-
-## Acknowledgments
-
-- Based on the official [Webots Mavic 2 Pro example](https://cyberbotics.com/doc/guide/mavic-2-pro)
-- PID control system adapted from Cyberbotics' sample controller
-- Built as part of exploring 3D web interfaces for robotics
+MIT
 
 ## Author
 
-Tommy Lough - [GitHub Profile](https://github.com/tommylough)
-
----
-
-**Questions or Issues?** Please open an issue on GitHub or reach out!
+Tommy Lough — [GitHub](https://github.com/tommylough)
