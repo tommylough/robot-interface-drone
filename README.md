@@ -5,7 +5,7 @@ A real-time drone control interface built with React and Webots. Control a DJI M
 ![Drone Interface](https://img.shields.io/badge/status-active-success.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-![Drone Interface UI](public/images/drone_ui.jpg)
+![Drone Interface UI](https://raw.githubusercontent.com/tommylough/robot-interface-drone/main/public/images/drone_ui.jpg)
 
 ## Features
 
