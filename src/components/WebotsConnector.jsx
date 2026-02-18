@@ -2,7 +2,6 @@ import { useEffect } from 'react'
 import { useCameraStore, useTelemetryStore } from '../store/useStore'
 
 let socket = null
-let isSocketReady = false
 
 export const sendDroneCommand = (vertical, roll, pitch, yaw) => {
   if (socket && socket.readyState === WebSocket.OPEN) {
@@ -49,11 +48,8 @@ const WebotsConnector = () => {
   useEffect(() => {
     const ws = new WebSocket('ws://127.0.0.1:8765')
     socket = ws
-    isSocketReady = false
-
     ws.onopen = () => {
       console.log('Connected to Webots Python controller')
-      isSocketReady = true
       console.log('Socket is now ready, readyState:', ws.readyState)
     }
 
@@ -97,20 +93,15 @@ const WebotsConnector = () => {
 
     ws.onerror = (err) => {
       console.error('WebSocket Error:', err)
-      isSocketReady = false
     }
 
     ws.onclose = () => {
       console.log('Disconnected from controller')
       socket = null
-      isSocketReady = false
     }
 
     return () => {
-      if (ws) {
-        ws.close()
-        isSocketReady = false
-      }
+      if (ws) ws.close()
     }
   }, [setCameraImage, setActiveCamera, setCameraStats, setTelemetry])
 
