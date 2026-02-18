@@ -8,7 +8,7 @@ const FlightControls = () => {
   const flightMode = useTelemetryStore((state) => state.telemetry.flight_mode)
 
   const [showInfo, setShowInfo] = useState(false)
-  const { keys, currentSpeed, MAX_SPEED } = useKeyboardFlightControls()
+  useKeyboardFlightControls()
 
   const infoButtonClicked = () => {
     setShowInfo(!showInfo)

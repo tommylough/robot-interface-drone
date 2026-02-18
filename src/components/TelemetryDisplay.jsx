@@ -21,8 +21,6 @@ const TelemetryDisplay = () => {
     return 'text-red-400'
   }
 
-  const compassHeading = ((telemetry.yaw * 57.2958 + 360) % 360).toFixed(0)
-
   return (
     <div className="bg-black/50 backdrop-blur-sm text-white p-4 rounded-lg space-y-3">
       <h3 className="text-sm font-bold uppercase tracking-wide border-b border-white/20 pb-2">
